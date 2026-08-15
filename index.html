@@ -14,7 +14,7 @@
             --border: #e5e7eb;
             --blue: #2563eb;
             --green: #16a34a;
-            --purple: #7c3aed;
+            --red: #dc2626
         }
 
         * {
@@ -30,12 +30,16 @@
 
         .wrap {
             max-width: 950px;
-            margin: 0 auto;
+            margin: auto;
             padding: 40px 20px 60px
         }
 
         header {
-            margin-bottom: 28px
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 25px
         }
 
         h1 {
@@ -44,15 +48,32 @@
         }
 
         .subtitle {
-            color: var(--muted);
-            margin: 0
+            margin: 0;
+            color: var(--muted)
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600
+        }
+
+        .connect {
+            background: #111827;
+            color: #fff
+        }
+
+        .connect:hover {
+            background: #000
         }
 
         .summary {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            margin: 22px 0
+            margin: 20px 0
         }
 
         .stat {
@@ -85,7 +106,6 @@
             padding: 18px 20px;
             border-bottom: 1px solid var(--border);
             display: flex;
-            align-items: center;
             justify-content: space-between;
             gap: 12px
         }
@@ -106,19 +126,13 @@
 
         .task {
             display: flex;
-            align-items: flex-start;
             gap: 12px;
             padding: 15px 20px;
-            border-bottom: 1px solid #f0f1f3;
-            transition: .15s
+            border-bottom: 1px solid #f0f1f3
         }
 
         .task:last-child {
             border-bottom: 0
-        }
-
-        .task:hover {
-            background: #fafafa
         }
 
         .task input {
@@ -126,8 +140,7 @@
             width: 18px;
             height: 18px;
             accent-color: var(--blue);
-            cursor: pointer;
-            flex: none
+            cursor: pointer
         }
 
         .task label {
@@ -161,7 +174,7 @@
             flex-wrap: wrap
         }
 
-        .checks label {
+        .check-label {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -169,42 +182,105 @@
             cursor: pointer
         }
 
-        .checks input {
+        .check-label input {
             width: 18px;
             height: 18px;
             accent-color: var(--green)
         }
 
         .complete {
-            margin-left: auto;
-            font-size: 12px;
+            display: none;
             color: var(--green);
+            font-size: 12px;
             font-weight: 600;
-            display: none
+            margin-top: 10px
         }
 
         .dual.complete-both .complete {
             display: block
         }
 
-        .reset {
-            margin-top: 22px;
-            border: 0;
-            background: #111827;
-            color: #fff;
-            padding: 11px 16px;
+        .status {
+            margin: 12px 0;
+            padding: 10px 12px;
             border-radius: 10px;
-            cursor: pointer
+            background: #ecfdf5;
+            color: #166534;
+            font-size: 13px;
+            display: none
         }
 
-        .reset:hover {
-            background: #000
+        .status.error {
+            background: #fef2f2;
+            color: #991b1b
+        }
+
+        .status.show {
+            display: block
+        }
+
+        .reset {
+            margin-top: 22px;
+            background: #111827;
+            color: #fff
         }
 
         .note {
             font-size: 12px;
             color: var(--muted);
-            margin-top: 12px
+            line-height: 1.5
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 5
+        }
+
+        .modal.open {
+            display: flex
+        }
+
+        .box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 520px;
+            width: 100%
+        }
+
+        .box h2 {
+            margin-top: 0
+        }
+
+        .box p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            margin: 6px 0 14px
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px
+        }
+
+        .cancel {
+            background: #e5e7eb
         }
 
         @media(max-width:600px) {
@@ -212,12 +288,12 @@
                 padding: 25px 12px
             }
 
-            .section-head {
-                align-items: flex-start
+            header {
+                display: block
             }
 
-            .complete {
-                display: none !important
+            .connect {
+                margin-top: 15px
             }
         }
     </style>
@@ -226,9 +302,14 @@
 <body>
     <div class="wrap">
         <header>
-            <h1>Project Task Tracker</h1>
-            <p class="subtitle">Simple shared checklist for Raihan and Mahi.</p>
+            <div>
+                <h1>Project Task Tracker</h1>
+                <p class="subtitle">Shared checklist powered by GitHub only.</p>
+            </div>
+            <button class="connect" id="connectBtn">Connect GitHub</button>
         </header>
+
+        <div id="status" class="status"></div>
 
         <div class="summary">
             <div class="stat"><strong id="total">0</strong><span>Total checks</span></div>
@@ -258,11 +339,43 @@
         </section>
 
         <button class="reset" id="reset">Reset All Tasks</button>
-        <p class="note">Progress is saved automatically in this browser using localStorage. No database or server is
-            required.</p>
+        <p class="note">
+            The shared task state is stored in <b>tasks.json</b> inside your GitHub repository.
+            Every change creates a GitHub commit. Other users can refresh the page to see it.
+            Each person needs a GitHub Personal Access Token with access to this repository to make changes.
+        </p>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="box">
+            <h2>Connect to GitHub</h2>
+            <p>
+                This version uses GitHub as the only storage. Your token is used directly by this browser to call
+                GitHub's API and is not written into the website or repository.
+            </p>
+            <label>GitHub username</label>
+            <input id="ghUser" type="text" placeholder="e.g. manjurulalammahi">
+            <label>Personal Access Token</label>
+            <input id="ghToken" type="password" placeholder="github_pat_...">
+            <p>
+                Create a fine-grained GitHub token with <b>Contents: Read and write</b> permission for this repository
+                only.
+                Do not put the token in the HTML source.
+            </p>
+            <div class="actions">
+                <button class="cancel" id="cancel">Cancel</button>
+                <button class="connect" id="saveConnect">Connect</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        const OWNER = "manjurulalammahi";
+        const REPO = "ProjectTaskTracker";
+        const BRANCH = "main";
+        const FILE = "tasks.json";
+        const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
+
         const data = {
             raihan: [
                 "Integrated coaching application process.",
@@ -287,97 +400,183 @@
             ]
         };
 
-        const saved = JSON.parse(localStorage.getItem("projectTaskTracker") || "{}");
+        let state = {};
+        let fileSha = null;
 
-        function makeTask(text, key) {
-            const row = document.createElement("div");
-            row.className = "task";
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.id = key;
-            cb.checked = !!saved[key];
-            const label = document.createElement("label");
-            label.htmlFor = key;
-            label.textContent = text;
+        const credentials = () => ({
+            user: sessionStorage.getItem("ghUser") || "",
+            token: sessionStorage.getItem("ghToken") || ""
+        });
+
+        function showStatus(message, error = false) {
+            const el = document.getElementById("status");
+            el.textContent = message;
+            el.className = "status show" + (error ? " error" : "");
+            clearTimeout(window.statusTimer);
+            window.statusTimer = setTimeout(() => el.className = "status", 5000);
+        }
+
+        function authHeaders() {
+            const { token } = credentials();
+            return {
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                ...(token ? { "Authorization": `Bearer ${token}` } : {})
+            };
+        }
+
+        function render() {
+            const r = document.getElementById("raihanTasks");
+            const m = document.getElementById("mahiTasks");
+            const b = document.getElementById("bothTasks");
+            r.innerHTML = ""; m.innerHTML = ""; b.innerHTML = "";
+
+            data.raihan.forEach((text, i) => r.appendChild(makeSingle(text, `raihan-${i}`)));
+            data.mahi.forEach((text, i) => m.appendChild(makeSingle(text, `mahi-${i}`)));
+            data.both.forEach((text, i) => b.appendChild(makeDual(text, i)));
+            updateSummary();
+        }
+
+        function makeSingle(text, key) {
+            const row = document.createElement("div"); row.className = "task";
+            const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!state[key];
+            const label = document.createElement("label"); label.textContent = text;
             row.append(cb, label);
             if (cb.checked) row.classList.add("done");
-            cb.addEventListener("change", () => {
-                saved[key] = cb.checked;
-                localStorage.setItem("projectTaskTracker", JSON.stringify(saved));
-                row.classList.toggle("done", cb.checked);
-                update();
+            cb.addEventListener("change", async () => {
+                state[key] = cb.checked; row.classList.toggle("done", cb.checked);
+                updateSummary(); await saveToGitHub();
             });
             return row;
         }
 
-        function makeBothTask(text, index) {
-            const keyA = "both-" + index + "-raihan";
-            const keyB = "both-" + index + "-mahi";
-            const row = document.createElement("div");
-            row.className = "dual";
-
-            const title = document.createElement("div");
-            title.className = "dual-title";
-            title.textContent = text;
-
-            const checks = document.createElement("div");
-            checks.className = "checks";
-
-            [["Raihan", keyA], ["Mahi", keyB]].forEach(([name, key]) => {
-                const label = document.createElement("label");
-                const cb = document.createElement("input");
-                cb.type = "checkbox";
-                cb.id = key;
-                cb.checked = !!saved[key];
-                const span = document.createElement("span");
-                span.textContent = name + " completed";
-                label.append(cb, span);
-                checks.appendChild(label);
-
-                cb.addEventListener("change", () => {
-                    saved[key] = cb.checked;
-                    localStorage.setItem("projectTaskTracker", JSON.stringify(saved));
-                    update();
-                });
+        function makeDual(text, i) {
+            const row = document.createElement("div"); row.className = "dual";
+            const title = document.createElement("div"); title.className = "dual-title"; title.textContent = text;
+            const checks = document.createElement("div"); checks.className = "checks";
+            [["Raihan", `both-${i}-raihan`], ["Mahi", `both-${i}-mahi`]].forEach(([name, key]) => {
+                const label = document.createElement("label"); label.className = "check-label";
+                const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!state[key];
+                const span = document.createElement("span"); span.textContent = `${name} completed`;
+                label.append(cb, span); checks.appendChild(label);
+                cb.addEventListener("change", async () => { state[key] = cb.checked; updateSummary(); await saveToGitHub(); });
             });
-
-            const complete = document.createElement("span");
-            complete.className = "complete";
-            complete.textContent = "✓ Both completed";
-
+            const complete = document.createElement("div"); complete.className = "complete"; complete.textContent = "✓ Both completed";
             row.append(title, checks, complete);
+            if (state[`both-${i}-raihan`] && state[`both-${i}-mahi`]) row.classList.add("complete-both");
             return row;
         }
 
-        data.raihan.forEach((t, i) => document.getElementById("raihanTasks").appendChild(makeTask(t, "raihan-" + i)));
-        data.mahi.forEach((t, i) => document.getElementById("mahiTasks").appendChild(makeTask(t, "mahi-" + i)));
-        data.both.forEach((t, i) => document.getElementById("bothTasks").appendChild(makeBothTask(t, i)));
-
-        function update() {
-            const all = document.querySelectorAll('input[type="checkbox"]');
-            const completed = [...all].filter(x => x.checked).length;
-            document.getElementById("total").textContent = all.length;
+        function updateSummary() {
+            const all = Object.keys(state);
+            const completed = all.filter(k => state[k]).length;
+            document.getElementById("total").textContent = data.raihan.length + data.mahi.length + (data.both.length * 2);
             document.getElementById("done").textContent = completed;
-            document.getElementById("remaining").textContent = all.length - completed;
-
+            document.getElementById("remaining").textContent = (data.raihan.length + data.mahi.length + (data.both.length * 2)) - completed;
             document.querySelectorAll(".dual").forEach(row => {
                 const boxes = row.querySelectorAll("input");
                 row.classList.toggle("complete-both", boxes.length === 2 && boxes[0].checked && boxes[1].checked);
             });
         }
-        update();
 
-        document.getElementById("reset").addEventListener("click", () => {
-            if (confirm("Reset all task progress?")) {
-                localStorage.removeItem("projectTaskTracker");
-                location.reload();
+        async function loadFromGitHub() {
+            try {
+                const res = await fetch(`${API}?ref=${BRANCH}`, { headers: authHeaders() });
+                if (res.status === 404) {
+                    state = {}; fileSha = null; render();
+                    showStatus("tasks.json does not exist yet. The first change will create it.");
+                    return;
+                }
+                if (!res.ok) throw new Error(`GitHub returned ${res.status}`);
+                const file = await res.json();
+                fileSha = file.sha;
+                const decoded = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ""))));
+                state = JSON.parse(decoded) || {};
+                render();
+                showStatus("✓ Synced with GitHub");
+            } catch (err) {
+                console.error(err);
+                showStatus("Could not load tasks from GitHub. Check repository access.", true);
+                render();
             }
-        });
+        }
+
+        async function saveToGitHub() {
+            const { token } = credentials();
+            if (!token) {
+                showStatus("Connect GitHub first so your change can be saved.", true);
+                render();
+                return;
+            }
+
+            showStatus("Saving change to GitHub...");
+            try {
+                // Fetch latest version first to reduce conflicts when two people change tasks close together.
+                const latest = await fetch(`${API}?ref=${BRANCH}`, { headers: authHeaders() });
+                if (latest.ok) {
+                    const latestFile = await latest.json();
+                    fileSha = latestFile.sha;
+                    const latestDecoded = decodeURIComponent(escape(atob(latestFile.content.replace(/\n/g, ""))));
+                    const latestState = JSON.parse(latestDecoded) || {};
+                    state = { ...latestState, ...state };
+                }
+
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2) + "\n")));
+                const body = {
+                    message: `Update task tracker - ${new Date().toISOString()}`,
+                    content,
+                    branch: BRANCH
+                };
+                if (fileSha) body.sha = fileSha;
+
+                const res = await fetch(API, {
+                    method: "PUT",
+                    headers: { ...authHeaders(), "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const detail = await res.json().catch(() => ({}));
+                    throw new Error(detail.message || `GitHub returned ${res.status}`);
+                }
+                const result = await res.json();
+                fileSha = result.content.sha;
+                render();
+                showStatus("✓ Saved to GitHub. Others can refresh to see the change.");
+            } catch (err) {
+                console.error(err);
+                showStatus("Could not save to GitHub: " + err.message, true);
+                await loadFromGitHub();
+            }
+        }
+
+        document.getElementById("connectBtn").onclick = () => {
+            const c = credentials();
+            document.getElementById("ghUser").value = c.user;
+            document.getElementById("ghToken").value = "";
+            document.getElementById("modal").classList.add("open");
+        };
+        document.getElementById("cancel").onclick = () => document.getElementById("modal").classList.remove("open");
+        document.getElementById("saveConnect").onclick = async () => {
+            const user = document.getElementById("ghUser").value.trim();
+            const token = document.getElementById("ghToken").value.trim();
+            if (!user || !token) { alert("Enter your GitHub username and token."); return; }
+            sessionStorage.setItem("ghUser", user);
+            sessionStorage.setItem("ghToken", token);
+            document.getElementById("modal").classList.remove("open");
+            await loadFromGitHub();
+        };
+
+        document.getElementById("reset").onclick = async () => {
+            if (confirm("Reset all tasks for everyone? This will update tasks.json on GitHub.")) {
+                state = {};
+                await saveToGitHub();
+            }
+        };
+
+        render();
+        loadFromGitHub();
     </script>
 </body>
 
-</html>'''
-
-path = Path("/mnt/data/project_task_tracker.html")
-path.write_text(html, encoding="utf-8")
-print(f"Created: {path}")
+</html>
