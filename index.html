@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Task Tracker</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --card: #fff;
+            --text: #18212f;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --blue: #2563eb;
+            --green: #16a34a;
+            --purple: #7c3aed;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .wrap {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 40px 20px 60px
+        }
+
+        header {
+            margin-bottom: 28px
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 30px
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0
+        }
+
+        .summary {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 22px 0
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 135px
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 20px
+        }
+
+        .stat span {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin: 16px 0;
+            overflow: hidden
+        }
+
+        .section-head {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .section-head h2 {
+            font-size: 18px;
+            margin: 0
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600
+        }
+
+        .task {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f1f3;
+            transition: .15s
+        }
+
+        .task:last-child {
+            border-bottom: 0
+        }
+
+        .task:hover {
+            background: #fafafa
+        }
+
+        .task input {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--blue);
+            cursor: pointer;
+            flex: none
+        }
+
+        .task label {
+            cursor: pointer;
+            line-height: 1.45;
+            flex: 1
+        }
+
+        .task.done label {
+            text-decoration: line-through;
+            color: #9ca3af
+        }
+
+        .dual {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f1f3
+        }
+
+        .dual:last-child {
+            border-bottom: 0
+        }
+
+        .dual-title {
+            font-weight: 600;
+            margin-bottom: 12px
+        }
+
+        .checks {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap
+        }
+
+        .checks label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b5563;
+            cursor: pointer
+        }
+
+        .checks input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green)
+        }
+
+        .complete {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--green);
+            font-weight: 600;
+            display: none
+        }
+
+        .dual.complete-both .complete {
+            display: block
+        }
+
+        .reset {
+            margin-top: 22px;
+            border: 0;
+            background: #111827;
+            color: #fff;
+            padding: 11px 16px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .reset:hover {
+            background: #000
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 12px
+        }
+
+        @media(max-width:600px) {
+            .wrap {
+                padding: 25px 12px
+            }
+
+            .section-head {
+                align-items: flex-start
+            }
+
+            .complete {
+                display: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Project Task Tracker</h1>
+            <p class="subtitle">Simple shared checklist for Raihan and Mahi.</p>
+        </header>
+
+        <div class="summary">
+            <div class="stat"><strong id="total">0</strong><span>Total checks</span></div>
+            <div class="stat"><strong id="done">0</strong><span>Completed</span></div>
+            <div class="stat"><strong id="remaining">0</strong><span>Remaining</span></div>
+        </div>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>Raihan</h2><span class="badge">Individual Tasks</span>
+            </div>
+            <div id="raihanTasks"></div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>Mahi</h2><span class="badge">Individual Tasks</span>
+            </div>
+            <div id="mahiTasks"></div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>Raihan + Mahi</h2><span class="badge">Both Required</span>
+            </div>
+            <div id="bothTasks"></div>
+        </section>
+
+        <button class="reset" id="reset">Reset All Tasks</button>
+        <p class="note">Progress is saved automatically in this browser using localStorage. No database or server is
+            required.</p>
+    </div>
+
+    <script>
+        const data = {
+            raihan: [
+                "Integrated coaching application process.",
+                "Monthly app subscription after the free trial.",
+                "Appropriate Bible verse selection using KJV.",
+                "Remove the burned metric from Daily Nourishment.",
+                "Test on both iOS and Android before deployment.",
+                "Keep users signed in by default.",
+                "Update the onboarding text as required."
+            ],
+            mahi: [
+                "Ability to manage/edit user information from the admin panel."
+            ],
+            both: [
+                "Separate coaching purchase/application process.",
+                "Progress, streak, daily target, and achievement tracking.",
+                "Adjust the water calculation to 8 oz per glass.",
+                "Coaching portal with user communication and access to user meal/activity information.",
+                "Use a VPS for the real-time coaching/chat functionality.",
+                "Add/demo food images.",
+                "Research available nutrition/food APIs and determine how food and restaurant nutrition data can be integrated."
+            ]
+        };
+
+        const saved = JSON.parse(localStorage.getItem("projectTaskTracker") || "{}");
+
+        function makeTask(text, key) {
+            const row = document.createElement("div");
+            row.className = "task";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.id = key;
+            cb.checked = !!saved[key];
+            const label = document.createElement("label");
+            label.htmlFor = key;
+            label.textContent = text;
+            row.append(cb, label);
+            if (cb.checked) row.classList.add("done");
+            cb.addEventListener("change", () => {
+                saved[key] = cb.checked;
+                localStorage.setItem("projectTaskTracker", JSON.stringify(saved));
+                row.classList.toggle("done", cb.checked);
+                update();
+            });
+            return row;
+        }
+
+        function makeBothTask(text, index) {
+            const keyA = "both-" + index + "-raihan";
+            const keyB = "both-" + index + "-mahi";
+            const row = document.createElement("div");
+            row.className = "dual";
+
+            const title = document.createElement("div");
+            title.className = "dual-title";
+            title.textContent = text;
+
+            const checks = document.createElement("div");
+            checks.className = "checks";
+
+            [["Raihan", keyA], ["Mahi", keyB]].forEach(([name, key]) => {
+                const label = document.createElement("label");
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.id = key;
+                cb.checked = !!saved[key];
+                const span = document.createElement("span");
+                span.textContent = name + " completed";
+                label.append(cb, span);
+                checks.appendChild(label);
+
+                cb.addEventListener("change", () => {
+                    saved[key] = cb.checked;
+                    localStorage.setItem("projectTaskTracker", JSON.stringify(saved));
+                    update();
+                });
+            });
+
+            const complete = document.createElement("span");
+            complete.className = "complete";
+            complete.textContent = "✓ Both completed";
+
+            row.append(title, checks, complete);
+            return row;
+        }
+
+        data.raihan.forEach((t, i) => document.getElementById("raihanTasks").appendChild(makeTask(t, "raihan-" + i)));
+        data.mahi.forEach((t, i) => document.getElementById("mahiTasks").appendChild(makeTask(t, "mahi-" + i)));
+        data.both.forEach((t, i) => document.getElementById("bothTasks").appendChild(makeBothTask(t, i)));
+
+        function update() {
+            const all = document.querySelectorAll('input[type="checkbox"]');
+            const completed = [...all].filter(x => x.checked).length;
+            document.getElementById("total").textContent = all.length;
+            document.getElementById("done").textContent = completed;
+            document.getElementById("remaining").textContent = all.length - completed;
+
+            document.querySelectorAll(".dual").forEach(row => {
+                const boxes = row.querySelectorAll("input");
+                row.classList.toggle("complete-both", boxes.length === 2 && boxes[0].checked && boxes[1].checked);
+            });
+        }
+        update();
+
+        document.getElementById("reset").addEventListener("click", () => {
+            if (confirm("Reset all task progress?")) {
+                localStorage.removeItem("projectTaskTracker");
+                location.reload();
+            }
+        });
+    </script>
+</body>
+
+</html>'''
+
+path = Path("/mnt/data/project_task_tracker.html")
+path.write_text(html, encoding="utf-8")
+print(f"Created: {path}")
